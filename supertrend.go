@@ -21,13 +21,22 @@ func SuperTrend(factor float64, period int, inHigh, inLow, inClose []float64) ([
 	trendDown := make([]float64, l)
 	trend := make([]bool, l)
 	tsl := make([]float64, l)
-	for i := 0; i < l; i++ {
+
+	// Initialize with NaN for insufficient data points
+	for i := 0; i < period-1; i++ {
+		trendUp[i] = math.NaN()
+		trendDown[i] = math.NaN()
+		trend[i] = false // Placeholder, actual trend determination starts later
+		tsl[i] = math.NaN()
+	}
+
+	for i := period - 1; i < l; i++ {
 		up[i] = hl2[i] - atr[i]*factor
 		down[i] = hl2[i] + atr[i]*factor
-		if i == 0 {
+		if i == period-1 {
 			trendUp[i] = up[i]
 			trendDown[i] = down[i]
-			trend[i] = true
+			trend[i] = true // Assuming initial trend is up
 			tsl[i] = trendUp[i]
 			continue
 		}
@@ -42,14 +51,7 @@ func SuperTrend(factor float64, period int, inHigh, inLow, inClose []float64) ([
 			trendDown[i] = down[i]
 		}
 
-		if inClose[i] > trendDown[i-1] {
-			trend[i] = true
-		} else if inClose[i] < trendUp[i-1] {
-			trend[i] = false
-		} else {
-			trend[i] = trend[i-1]
-		}
-
+		trend[i] = !(inClose[i] < trendUp[i-1])
 		if trend[i] {
 			tsl[i] = trendUp[i]
 		} else {
@@ -60,7 +62,7 @@ func SuperTrend(factor float64, period int, inHigh, inLow, inClose []float64) ([
 	return tsl, trend
 }
 
-// SuperTrend with upper/lower bands
+// SuperTrendDetail SuperTrend with upper/lower bands
 func SuperTrendDetail(factor float64, period int, inHigh, inLow, inClose []float64) ([]float64, []float64, []float64, []bool) {
 	l := len(inHigh)
 	hl2 := talib.MedPrice(inHigh, inLow)
