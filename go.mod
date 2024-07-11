@@ -1,4 +1,4 @@
-module github.com/xyths/go-indicators
+module github.com/citadel-hq/go-indicators
 
 go 1.16
 
