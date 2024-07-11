@@ -12,6 +12,7 @@ import (
 // green->red = true->false = sell
 func SuperTrend(factor float64, period int, inHigh, inLow, inClose []float64) ([]float64, []bool) {
 	l := len(inHigh)
+	//supertrend = hl2 + factor * atr
 	hl2 := talib.MedPrice(inHigh, inLow)
 	atr := talib.Atr(inHigh, inLow, inClose, period)
 
